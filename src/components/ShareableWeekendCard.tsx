@@ -16,7 +16,7 @@ export function ShareableWeekendCard({ plan }: ShareableWeekendCardProps) {
           <Text style={styles.date}>{new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.endDate).toLocaleDateString()}</Text>
           
           {plan.days.map((day, index) => {
-            const activity = day.activities[0]; // Get the first activity of the day
+            const activity = day.activities[0];
             return (
               <View key={index} style={styles.activityContainer}>
                 <View style={styles.dayHeader}>

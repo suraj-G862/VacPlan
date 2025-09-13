@@ -1,7 +1,6 @@
 import { Activity } from './types';
 
 export const sampleActivities: Activity[] = [
-  // Lazy Weekend Activities
   {
     id: '1',
     title: 'Netflix Marathon',
@@ -33,7 +32,6 @@ export const sampleActivities: Activity[] = [
     theme: 'lazy'
   },
 
-  // Adventurous Weekend Activities
   {
     id: '4',
     title: 'Hiking',
@@ -65,7 +63,6 @@ export const sampleActivities: Activity[] = [
     theme: 'adventure'
   },
 
-  // Family Weekend Activities
   {
     id: '7',
     title: 'Board Games',
@@ -97,7 +94,6 @@ export const sampleActivities: Activity[] = [
     theme: 'family'
   },
 
-  // Wellness Weekend Activities
   {
     id: '10',
     title: 'Yoga Session',

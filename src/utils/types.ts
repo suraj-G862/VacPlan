@@ -20,7 +20,7 @@ export interface WeekendPlan {
   name: string;
   theme?: string;
   days: DayPlan[];
-  activities: Array<Activity | null>;  // For direct access in share card
+  activities: Array<Activity | null>;
   isLongWeekend?: boolean;
   createdAt: string;
   updatedAt: string;

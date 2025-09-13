@@ -35,7 +35,7 @@ export default function WeekendPlanScreen() {
           activities: []
         }
       ],
-      activities: [null, null], // Initialize with null for each day
+      activities: [null, null],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       theme: theme?.toString(),
@@ -123,7 +123,6 @@ export default function WeekendPlanScreen() {
       setPlan(prev => ({
         ...prev,
         days: newDays,
-        // Set the first activity of each day or null if no activities
         activities: newDays.map(day => day.activities[0] || null)
       }));
     }
@@ -146,7 +145,6 @@ export default function WeekendPlanScreen() {
                   : day
               );
 
-              // Update activities array to match days
               const updatedActivities = updatedDays.map(day => 
                 day.activities.length > 0 ? day.activities[0] : null
               );
@@ -228,7 +226,6 @@ export default function WeekendPlanScreen() {
         };
       }
 
-      // Update activities array to match days
       const updatedActivities = updatedDays.map(day => 
         day.activities.length > 0 ? day.activities[0] : null
       );

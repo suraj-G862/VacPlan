@@ -32,7 +32,7 @@ interface Props {
 export const DraggableActivity = ({ activity, onRemove, onMove, index, totalItems }: Props) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
-  const cardHeight = useSharedValue(80); // Approximate height of the card
+  const cardHeight = useSharedValue(80);
 
   const gesture = Gesture.Pan()
     .onUpdate((event) => {
@@ -41,7 +41,6 @@ export const DraggableActivity = ({ activity, onRemove, onMove, index, totalItem
     })
     .onEnd((event) => {
       if (Math.abs(event.translationY) > cardHeight.value) {
-        // Calculate the new position based on vertical movement
         const direction = event.translationY > 0 ? 1 : -1;
         const movement = Math.round(Math.abs(event.translationY) / cardHeight.value);
         const newPosition = Math.max(0, Math.min(index + (direction * movement), totalItems - 1));

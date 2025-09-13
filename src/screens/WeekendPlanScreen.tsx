@@ -15,7 +15,7 @@ const WeekendPlanScreen = ({ route }: any) => {
     id: planId || Date.now().toString(),
     name: '',
     days: [],
-    activities: [], // Initialize empty activities array
+    activities: [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     theme: theme,
@@ -54,16 +54,14 @@ const WeekendPlanScreen = ({ route }: any) => {
           { date: startDate.toISOString(), activities: [] },
           { date: endDate.toISOString(), activities: [] },
         ],
-        activities: [null, null] // Initialize with null for each day
+        activities: [null, null] 
       }));
     }
   }, []);
 
   const handleAddActivity = async (dayIndex: number) => {
     try {
-    //   // Clear any existing stored data first
       await AsyncStorage.multiRemove(['selectedActivity', 'selectedDayIndex']);
-      // Set the selected day index
       await AsyncStorage.setItem('selectedDayIndex', dayIndex.toString());
       router.push('/(modals)/activity-list');
     } catch (error) {
@@ -71,7 +69,6 @@ const WeekendPlanScreen = ({ route }: any) => {
     }
   };
 
-  // Add debug logging
   const checkForSelectedActivity = async () => {
     try {
       const selectedActivityJson = await AsyncStorage.getItem('selectedActivity');
@@ -90,7 +87,6 @@ const WeekendPlanScreen = ({ route }: any) => {
         
         console.log('Adding activity:', activity, 'to day:', dayIndex);
         
-        // Add unique ID if not present
         if (!activity.id) {
           activity.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
         }
@@ -110,7 +106,6 @@ const WeekendPlanScreen = ({ route }: any) => {
           return updatedPlan;
         });
         
-        // Clear the stored activity and day index
         await AsyncStorage.multiRemove(['selectedActivity', 'selectedDayIndex']);
       }
     } catch (error) {
@@ -120,7 +115,6 @@ const WeekendPlanScreen = ({ route }: any) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Add a small delay to ensure AsyncStorage is updated
       const timeoutId = setTimeout(() => {
         checkForSelectedActivity();
       }, 100);
@@ -146,7 +140,6 @@ const WeekendPlanScreen = ({ route }: any) => {
           : day
       );
 
-      // Update activities array to match the first activity of each day
       const updatedActivities = updatedDays.map(day => 
         day.activities.length > 0 ? day.activities[0] : null
       );
@@ -167,7 +160,6 @@ const WeekendPlanScreen = ({ route }: any) => {
       const [draggedActivity] = day.activities.splice(dragIndex, 1);
       day.activities.splice(hoverIndex, 0, draggedActivity);
       
-      // Update activities array to match the first activity of each day
       newPlan.activities = newPlan.days.map(day => 
         day.activities.length > 0 ? day.activities[0] : null
       );
@@ -211,7 +203,6 @@ const WeekendPlanScreen = ({ route }: any) => {
                     const [movedActivity] = newPlan.days[dayIndex].activities.splice(position, 1);
                     newPlan.days[nextDayIndex].activities.push(movedActivity);
                     
-                    // Update activities array to match the first activity of each day
                     newPlan.activities = newPlan.days.map(day => 
                       day.activities.length > 0 ? day.activities[0] : null
                     );

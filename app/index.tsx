@@ -52,21 +52,6 @@ export default function Index() {
         </Card.Actions>
       </Card>
 
-      {/* <View style={styles.themesContainer}>
-        {weekendThemes.map((theme) => (
-          <Card key={theme.id} style={styles.themeCard}>
-            <Card.Content>
-              <Title>{theme.icon}</Title>
-              <Paragraph>{theme.name}</Paragraph>
-            </Card.Content>
-            <Card.Actions>
-              <Link href={{ pathname: '/weekend-plan', params: { theme: theme.id }}} asChild>
-                <Button mode="outlined">Select</Button>
-              </Link>
-            </Card.Actions>
-          </Card>
-        ))}
-      </View> */}
 
       <Card style={styles.suggestionCard}>
         <Card.Content>
