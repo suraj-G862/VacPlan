@@ -9,13 +9,24 @@ import { storeSelectedActivity } from '../../src/utils/selectedActivity';
 export default function ActivityListScreen() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = React.useState<Activity['theme'] | null>(null);
   const [showNewActivityDialog, setShowNewActivityDialog] = React.useState(false);
-  const [newActivity, setNewActivity] = React.useState({
+  type NewActivityForm = {
+    title: string;
+    category: string;
+    duration: string;
+    icon: string;
+    description: string;
+    theme: Activity['theme'];
+  };
+
+  const [newActivity, setNewActivity] = React.useState<NewActivityForm>({
     title: '',
     category: '',
     duration: '',
     icon: '',
     description: '',
+    theme: undefined,
   });
   const router = useRouter();
   const { dayIndex } = useLocalSearchParams<{ dayIndex: string }>();
@@ -24,7 +35,8 @@ export default function ActivityListScreen() {
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !selectedCategory || activity.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesTheme = !selectedTheme || activity.theme === selectedTheme;
+    return matchesSearch && matchesCategory && matchesTheme;
   });
 
   const handleSelectActivity = async (activity: Activity) => {
@@ -50,20 +62,81 @@ export default function ActivityListScreen() {
         style={styles.searchbar}
       />
 
-      <ScrollView horizontal style={styles.categoriesScroll}>
-        <View style={styles.categories}>
-          {activityCategories.map((category) => (
-            <Chip
-              key={category}
-              selected={selectedCategory === category}
-              onPress={() => setSelectedCategory(selectedCategory === category ? null : category)}
-              style={styles.categoryChip}
-            >
-              {category}
-            </Chip>
-          ))}
+      <View style={styles.filtersContainer}>
+        <View style={styles.filterSection}>
+          <Title style={styles.filterTitle}>Themes</Title>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.chips}>
+              <Chip
+                key="lazy"
+                selected={selectedTheme === 'lazy'}
+                onPress={() => setSelectedTheme(selectedTheme === 'lazy' ? null : 'lazy')}
+                style={[
+                  styles.categoryChip,
+                  selectedTheme === 'lazy' ? styles.lazyChipSelected : styles.lazyChip
+                ]}
+                icon="sleep"
+              >
+                Lazy
+              </Chip>
+              <Chip
+                key="adventure"
+                selected={selectedTheme === 'adventure'}
+                onPress={() => setSelectedTheme(selectedTheme === 'adventure' ? null : 'adventure')}
+                style={[
+                  styles.categoryChip,
+                  selectedTheme === 'adventure' ? styles.adventureChipSelected : styles.adventureChip
+                ]}
+                icon="hiking"
+              >
+                Adventure
+              </Chip>
+              <Chip
+                key="family"
+                selected={selectedTheme === 'family'}
+                onPress={() => setSelectedTheme(selectedTheme === 'family' ? null : 'family')}
+                style={[
+                  styles.categoryChip,
+                  selectedTheme === 'family' ? styles.familyChipSelected : styles.familyChip
+                ]}
+                icon="account-group"
+              >
+                Family
+              </Chip>
+              <Chip
+                key="wellness"
+                selected={selectedTheme === 'wellness'}
+                onPress={() => setSelectedTheme(selectedTheme === 'wellness' ? null : 'wellness')}
+                style={[
+                  styles.categoryChip,
+                  selectedTheme === 'wellness' ? styles.wellnessChipSelected : styles.wellnessChip
+                ]}
+                icon="meditation"
+              >
+                Wellness
+              </Chip>
+            </View>
+          </ScrollView>
         </View>
-      </ScrollView>
+
+        <View style={styles.filterSection}>
+          <Title style={styles.filterTitle}>Categories</Title>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.chips}>
+              {activityCategories.map((category) => (
+                <Chip
+                  key={category}
+                  selected={selectedCategory === category}
+                  onPress={() => setSelectedCategory(selectedCategory === category ? null : category)}
+                  style={styles.categoryChip}
+                >
+                  {category}
+                </Chip>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+      </View>
 
       <ScrollView style={styles.activitiesList}>
         {filteredActivities.map((activity) => (
@@ -76,6 +149,20 @@ export default function ActivityListScreen() {
               <View style={styles.activityInfo}>
                 <Title>{activity.icon} {activity.title}</Title>
                 <View style={styles.tags}>
+                  {activity.theme && (
+                    <Chip 
+                      compact 
+                      style={[
+                        styles.themeChip,
+                        activity.theme === 'lazy' && styles.lazyChip,
+                        activity.theme === 'adventure' && styles.adventureChip,
+                        activity.theme === 'family' && styles.familyChip,
+                        activity.theme === 'wellness' && styles.wellnessChip,
+                      ]}
+                    >
+                      {activity.theme.charAt(0).toUpperCase() + activity.theme.slice(1)}
+                    </Chip>
+                  )}
                   <Chip compact>{activity.category}</Chip>
                   <Chip compact>{activity.duration} min</Chip>
                   {activity.mood && <Chip compact>{activity.mood}</Chip>}
@@ -126,6 +213,55 @@ export default function ActivityListScreen() {
               numberOfLines={3}
               style={styles.input}
             />
+            <View style={styles.themePicker}>
+              <Title style={styles.themeTitle}>Theme</Title>
+              <View style={styles.themeChips}>
+                <Chip
+                  selected={newActivity.theme === 'lazy'}
+                  onPress={() => setNewActivity(prev => ({ ...prev, theme: 'lazy' }))}
+                  style={[
+                    styles.categoryChip,
+                    newActivity.theme === 'lazy' ? styles.lazyChipSelected : styles.lazyChip
+                  ]}
+                  icon="sleep"
+                >
+                  Lazy
+                </Chip>
+                <Chip
+                  selected={newActivity.theme === 'adventure'}
+                  onPress={() => setNewActivity(prev => ({ ...prev, theme: 'adventure' }))}
+                  style={[
+                    styles.categoryChip,
+                    newActivity.theme === 'adventure' ? styles.adventureChipSelected : styles.adventureChip
+                  ]}
+                  icon="hiking"
+                >
+                  Adventure
+                </Chip>
+                <Chip
+                  selected={newActivity.theme === 'family'}
+                  onPress={() => setNewActivity(prev => ({ ...prev, theme: 'family' }))}
+                  style={[
+                    styles.categoryChip,
+                    newActivity.theme === 'family' ? styles.familyChipSelected : styles.familyChip
+                  ]}
+                  icon="account-group"
+                >
+                  Family
+                </Chip>
+                <Chip
+                  selected={newActivity.theme === 'wellness'}
+                  onPress={() => setNewActivity(prev => ({ ...prev, theme: 'wellness' }))}
+                  style={[
+                    styles.categoryChip,
+                    newActivity.theme === 'wellness' ? styles.wellnessChipSelected : styles.wellnessChip
+                  ]}
+                  icon="meditation"
+                >
+                  Wellness
+                </Chip>
+              </View>
+            </View>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setShowNewActivityDialog(false)}>Cancel</Button>
@@ -137,6 +273,7 @@ export default function ActivityListScreen() {
                 duration: parseInt(newActivity.duration) || 30,
                 icon: newActivity.icon,
                 description: newActivity.description,
+                theme: newActivity.theme,
               };
               handleSelectActivity(activity);
               setShowNewActivityDialog(false);
@@ -146,6 +283,7 @@ export default function ActivityListScreen() {
                 duration: '',
                 icon: '',
                 description: '',
+                theme: undefined,
               });
             }} mode="contained">
               Create & Add
@@ -169,18 +307,86 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
+  filtersContainer: {
+    paddingVertical: 8,
+  },
+  filterSection: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  filterTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  themePicker: {
+    marginTop: 12,
+  },
+  themeTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  themeChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   searchbar: {
     margin: 16,
   },
   categoriesScroll: {
-    maxHeight: 65,
     marginVertical: 8,
   },
   categories: {
-    flexDirection: 'row',
     paddingHorizontal: 16,
   },
+  chipGroup: {
+    marginBottom: 16,
+  },
+  chipGroupTitle: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   categoryChip: {
+    marginRight: 8,
+  },
+  lazyChip: {
+    backgroundColor: '#FFE0B2',
+  },
+  lazyChipSelected: {
+    backgroundColor: '#FFE0B2',
+    borderWidth: 2,
+    borderColor: '#FF9800',
+  },
+  adventureChip: {
+    backgroundColor: '#C8E6C9',
+  },
+  adventureChipSelected: {
+    backgroundColor: '#C8E6C9',
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+  },
+  familyChip: {
+    backgroundColor: '#BBDEFB',
+  },
+  familyChipSelected: {
+    backgroundColor: '#BBDEFB',
+    borderWidth: 2,
+    borderColor: '#2196F3',
+  },
+  wellnessChip: {
+    backgroundColor: '#E1BEE7',
+  },
+  wellnessChipSelected: {
+    backgroundColor: '#E1BEE7',
+    borderWidth: 2,
+    borderColor: '#9C27B0',
+  },
+  themeChip: {
     marginRight: 8,
   },
   activitiesList: {

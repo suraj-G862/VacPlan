@@ -29,7 +29,7 @@ interface Props {
   totalItems: number;
 }
 
-const DraggableActivity = ({ activity, onRemove, onMove, index, totalItems }: Props) => {
+export const DraggableActivity = ({ activity, onRemove, onMove, index, totalItems }: Props) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const cardHeight = useSharedValue(80); // Approximate height of the card

@@ -7,6 +7,7 @@ export interface Activity {
   icon?: string;
   location?: string;
   description?: string;
+  theme?: 'lazy' | 'adventure' | 'family' | 'wellness';
 }
 
 export interface DayPlan {
@@ -19,6 +20,7 @@ export interface WeekendPlan {
   name: string;
   theme?: string;
   days: DayPlan[];
+  activities: Array<Activity | null>;  // For direct access in share card
   isLongWeekend?: boolean;
   createdAt: string;
   updatedAt: string;

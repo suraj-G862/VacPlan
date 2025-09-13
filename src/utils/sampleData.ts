@@ -1,78 +1,133 @@
 import { Activity } from './types';
 
 export const sampleActivities: Activity[] = [
+  // Lazy Weekend Activities
   {
     id: '1',
-    title: 'Brunch',
+    title: 'Netflix Marathon',
+    category: 'Entertainment',
+    duration: 180,
+    mood: 'relaxed',
+    icon: '📺',
+    description: 'Binge-watch your favorite shows',
+    theme: 'lazy'
+  },
+  {
+    id: '2',
+    title: 'Late Brunch',
     category: 'Food & Dining',
     duration: 90,
     mood: 'relaxed',
     icon: '🍳',
-    description: 'Enjoy a relaxed brunch at your favorite cafe',
+    description: 'Enjoy a relaxed late brunch',
+    theme: 'lazy'
   },
   {
-    id: '2',
+    id: '3',
+    title: 'Reading',
+    category: 'Leisure',
+    duration: 120,
+    mood: 'relaxed',
+    icon: '📚',
+    description: 'Cozy up with a good book',
+    theme: 'lazy'
+  },
+
+  // Adventurous Weekend Activities
+  {
+    id: '4',
     title: 'Hiking',
     category: 'Outdoor',
     duration: 180,
     mood: 'energetic',
     icon: '🏃‍♂️',
-    description: 'Go for a refreshing hike in nature',
+    description: 'Go for a challenging hike',
+    theme: 'adventure'
   },
   {
-    id: '3',
+    id: '5',
+    title: 'Rock Climbing',
+    category: 'Sports',
+    duration: 120,
+    mood: 'energetic',
+    icon: '🧗‍♀️',
+    description: 'Try indoor or outdoor climbing',
+    theme: 'adventure'
+  },
+  {
+    id: '6',
+    title: 'Kayaking',
+    category: 'Sports',
+    duration: 150,
+    mood: 'energetic',
+    icon: '�',
+    description: 'Paddle through scenic waters',
+    theme: 'adventure'
+  },
+
+  // Family Weekend Activities
+  {
+    id: '7',
+    title: 'Board Games',
+    category: 'Entertainment',
+    duration: 120,
+    mood: 'happy',
+    icon: '🎲',
+    description: 'Family board game session',
+    theme: 'family'
+  },
+  {
+    id: '8',
+    title: 'Park Picnic',
+    category: 'Outdoor',
+    duration: 150,
+    mood: 'happy',
+    icon: '🧺',
+    description: 'Family picnic at the park',
+    theme: 'family'
+  },
+  {
+    id: '9',
     title: 'Movie Night',
     category: 'Entertainment',
     duration: 150,
     mood: 'relaxed',
-    icon: '🎬',
-    description: 'Watch a movie at home or in theaters',
+    icon: '�',
+    description: 'Family movie night with snacks',
+    theme: 'family'
   },
+
+  // Wellness Weekend Activities
   {
-    id: '4',
-    title: 'Reading',
-    category: 'Leisure',
-    duration: 60,
-    mood: 'relaxed',
-    icon: '📚',
-    description: 'Spend time with your favorite book',
-  },
-  {
-    id: '5',
+    id: '10',
     title: 'Yoga Session',
     category: 'Wellness',
     duration: 60,
     mood: 'relaxed',
     icon: '🧘‍♂️',
-    description: 'Practice yoga for mind and body wellness',
+    description: 'Morning yoga practice',
+    theme: 'wellness'
   },
   {
-    id: '6',
-    title: 'Gaming',
-    category: 'Entertainment',
-    duration: 120,
-    mood: 'happy',
-    icon: '🎮',
-    description: 'Play your favorite video games',
-  },
-  {
-    id: '7',
-    title: 'Park Visit',
-    category: 'Outdoor',
-    duration: 120,
-    mood: 'happy',
-    icon: '🌳',
-    description: 'Spend time at a local park',
-  },
-  {
-    id: '8',
-    title: 'Shopping',
-    category: 'Leisure',
+    id: '11',
+    title: 'Spa Day',
+    category: 'Wellness',
     duration: 180,
-    mood: 'happy',
-    icon: '🛍️',
-    description: 'Go shopping at your favorite stores',
+    mood: 'relaxed',
+    icon: '�‍♀️',
+    description: 'Relaxing spa treatment',
+    theme: 'wellness'
   },
+  {
+    id: '12',
+    title: 'Meditation',
+    category: 'Wellness',
+    duration: 30,
+    mood: 'relaxed',
+    icon: '🧠',
+    description: 'Guided meditation session',
+    theme: 'wellness'
+  }
 ];
 
 export const activityCategories = [

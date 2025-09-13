@@ -15,6 +15,7 @@ const WeekendPlanScreen = ({ route }: any) => {
     id: planId || Date.now().toString(),
     name: '',
     days: [],
+    activities: [], // Initialize empty activities array
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     theme: theme,
@@ -52,7 +53,8 @@ const WeekendPlanScreen = ({ route }: any) => {
         days: [
           { date: startDate.toISOString(), activities: [] },
           { date: endDate.toISOString(), activities: [] },
-        ]
+        ],
+        activities: [null, null] // Initialize with null for each day
       }));
     }
   }, []);
@@ -137,40 +139,41 @@ const WeekendPlanScreen = ({ route }: any) => {
   };
 
   const handleRemoveActivity = (dayIndex: number, activityId: string) => {
-    setPlan((current) => ({
-      ...current,
-      days: current.days.map((day, index) => 
+    setPlan((current) => {
+      const updatedDays = current.days.map((day, index) => 
         index === dayIndex
           ? { ...day, activities: day.activities.filter(a => a.id !== activityId) }
           : day
-      ),
-      updatedAt: new Date().toISOString(),
-    }));
-  };
+      );
 
-  const handleMoveActivity = (fromDayIndex: number, toDayIndex: number, activityId: string) => {
-    setPlan((current) => {
-      const fromDay = current.days[fromDayIndex];
-      const toDay = current.days[toDayIndex];
-      const activity = fromDay.activities.find(a => a.id === activityId);
-      
-      if (!activity) return current;
-
-      const updatedDays = [...current.days];
-      updatedDays[fromDayIndex] = {
-        ...fromDay,
-        activities: fromDay.activities.filter(a => a.id !== activityId)
-      };
-      updatedDays[toDayIndex] = {
-        ...toDay,
-        activities: [...toDay.activities, activity]
-      };
+      // Update activities array to match the first activity of each day
+      const updatedActivities = updatedDays.map(day => 
+        day.activities.length > 0 ? day.activities[0] : null
+      );
 
       return {
         ...current,
         days: updatedDays,
+        activities: updatedActivities,
         updatedAt: new Date().toISOString(),
       };
+    });
+  };
+
+  const handleMoveActivity = (dayIndex: number, dragIndex: number, hoverIndex: number) => {
+    setPlan((current) => {
+      const newPlan = { ...current };
+      const day = newPlan.days[dayIndex];
+      const [draggedActivity] = day.activities.splice(dragIndex, 1);
+      day.activities.splice(hoverIndex, 0, draggedActivity);
+      
+      // Update activities array to match the first activity of each day
+      newPlan.activities = newPlan.days.map(day => 
+        day.activities.length > 0 ? day.activities[0] : null
+      );
+      
+      newPlan.updatedAt = new Date().toISOString();
+      return newPlan;
     });
   };
 
@@ -200,7 +203,24 @@ const WeekendPlanScreen = ({ route }: any) => {
               index={activityIndex}
               totalItems={day.activities.length}
               onRemove={() => handleRemoveActivity(dayIndex, activity.id)}
-              onMove={() => handleMoveActivity(dayIndex, (dayIndex + 1) % plan.days.length, activity.id)}
+              onMove={(position) => {
+                if (typeof position === 'number') {
+                  const nextDayIndex = (dayIndex + 1) % plan.days.length;
+                  setPlan((current) => {
+                    const newPlan = { ...current };
+                    const [movedActivity] = newPlan.days[dayIndex].activities.splice(position, 1);
+                    newPlan.days[nextDayIndex].activities.push(movedActivity);
+                    
+                    // Update activities array to match the first activity of each day
+                    newPlan.activities = newPlan.days.map(day => 
+                      day.activities.length > 0 ? day.activities[0] : null
+                    );
+                    
+                    newPlan.updatedAt = new Date().toISOString();
+                    return newPlan;
+                  });
+                }
+              }}
             />
           ))}
           <Button 

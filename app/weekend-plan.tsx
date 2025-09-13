@@ -1,4 +1,5 @@
 import React from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { Button, Card, Title, Paragraph, Switch, TextInput, Portal, Dialog } from 'react-native-paper';
 import { Activity, WeekendPlan, DayPlan } from '../src/utils/types';
@@ -9,27 +10,39 @@ import { storeSelectedDayIndex } from '../src/utils/selectedDayIndex';
 import DraggableActivity from '../src/components/DraggableActivity';
 
 export default function WeekendPlanScreen() {
-  const { theme, planId } = useLocalSearchParams();
+  const { theme, planId, startDate: initialStartDate, endDate: initialEndDate } = useLocalSearchParams();
   const router = useRouter();
-  const [plan, setPlan] = React.useState<WeekendPlan>({
-    id: planId?.toString() || Date.now().toString(),
-    name: 'Weekend Plan',
-    days: [
-      {
-        date: new Date().toISOString(),
-        activities: []
-      },
-      {
-        date: new Date().toISOString(),
-        activities: []
-      }
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    theme: theme?.toString(),
-    isLongWeekend: false,
-    startDate: new Date().toISOString(),
-    endDate: new Date().toISOString(),
+  const [showStartDatePicker, setShowStartDatePicker] = React.useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = React.useState(false);
+  const [plan, setPlan] = React.useState<WeekendPlan>(() => {
+    const today = new Date();
+    const saturday = new Date(today);
+    saturday.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
+    
+    const sunday = new Date(saturday);
+    sunday.setDate(saturday.getDate() + 1);
+
+    return {
+      id: planId?.toString() || Date.now().toString(),
+      name: 'Weekend Plan',
+      days: [
+        {
+          date: saturday.toISOString(),
+          activities: []
+        },
+        {
+          date: sunday.toISOString(),
+          activities: []
+        }
+      ],
+      activities: [null, null], // Initialize with null for each day
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      theme: theme?.toString(),
+      isLongWeekend: false,
+      startDate: initialStartDate?.toString() || saturday.toISOString(),
+      endDate: initialEndDate?.toString() || sunday.toISOString(),
+    };
   });
 
 
@@ -49,6 +62,73 @@ export default function WeekendPlanScreen() {
 
   const [selectedDayIndex, setSelectedDayIndex] = React.useState<number>(0);
 
+    const generateDaysFromDateRange = React.useCallback(() => {
+    if (!plan.isLongWeekend || !plan.startDate || !plan.endDate) return;
+
+    const startDate = new Date(plan.startDate);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(plan.endDate);
+    endDate.setHours(23, 59, 59, 999);
+    
+    const days: DayPlan[] = [];
+    let currentDate = new Date(startDate);
+    
+    do {
+      const existingDay = plan.days.find(
+        d => new Date(d.date).toDateString() === currentDate.toDateString()
+      );
+      
+      days.push({
+        date: currentDate.toISOString(),
+        activities: existingDay?.activities || []
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
+    } while (currentDate <= endDate);
+
+    setPlan(prev => ({
+      ...prev,
+      days,
+      activities: days.map(day => day.activities.length > 0 ? day.activities[0] : null)
+    }));
+  }, [plan.startDate, plan.endDate, plan.isLongWeekend]);
+
+  React.useEffect(() => {
+    if (plan.isLongWeekend) {
+      generateDaysFromDateRange();
+    } else {
+      const existingActivities = plan.days.length >= 2 ? [
+        plan.days[0]?.activities || [],
+        plan.days[1]?.activities || []
+      ] : [[], []];
+
+      const today = new Date();
+      const saturday = new Date(today);
+      saturday.setDate(today.getDate() + ((6 - today.getDay() + 7) % 7));
+      
+      const sunday = new Date(saturday);
+      sunday.setDate(saturday.getDate() + 1);
+
+      const newDays = [
+        {
+          date: saturday.toISOString(),
+          activities: existingActivities[0]
+        },
+        {
+          date: sunday.toISOString(),
+          activities: existingActivities[1]
+        }
+      ];
+
+      setPlan(prev => ({
+        ...prev,
+        days: newDays,
+        // Set the first activity of each day or null if no activities
+        activities: newDays.map(day => day.activities[0] || null)
+      }));
+    }
+  }, [plan.isLongWeekend, plan.startDate, plan.endDate]);
+
   useFocusEffect(
     React.useCallback(() => {
       const checkForSelectedActivity = async () => {
@@ -59,15 +139,25 @@ export default function WeekendPlanScreen() {
           const { activity, dayIndex } = selectedActivityData;
           if (dayIndex >= 0 && dayIndex < plan.days.length) {
             console.log('Adding activity to day:', dayIndex);
-            setPlan((current) => ({
-              ...current,
-              days: current.days.map((day, index) => 
+            setPlan((current) => {
+              const updatedDays = current.days.map((day, index) => 
                 index === dayIndex
                   ? { ...day, activities: [...day.activities, activity] }
                   : day
-              ),
-              updatedAt: new Date().toISOString(),
-            }));
+              );
+
+              // Update activities array to match days
+              const updatedActivities = updatedDays.map(day => 
+                day.activities.length > 0 ? day.activities[0] : null
+              );
+
+              return {
+                ...current,
+                days: updatedDays,
+                activities: updatedActivities,
+                updatedAt: new Date().toISOString(),
+              };
+            });
           }
         }
       };
@@ -91,15 +181,25 @@ export default function WeekendPlanScreen() {
   };
 
   const handleRemoveActivity = (dayIndex: number, activityId: string) => {
-    setPlan((current) => ({
-      ...current,
-      days: current.days.map((day, index) => 
+    setPlan((current) => {
+      const updatedDays = current.days.map((day, index) => 
         index === dayIndex
           ? { ...day, activities: day.activities.filter(a => a.id !== activityId) }
           : day
-      ),
-      updatedAt: new Date().toISOString(),
-    }));
+      );
+      
+      // Update activities array to match days
+      const updatedActivities = updatedDays.map(day => 
+        day.activities.length > 0 ? day.activities[0] : null
+      );
+
+      return {
+        ...current,
+        days: updatedDays,
+        activities: updatedActivities,
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   const handleMoveActivity = (fromDayIndex: number, toDayIndex: number, activityId: string, position?: number) => {
@@ -128,9 +228,15 @@ export default function WeekendPlanScreen() {
         };
       }
 
+      // Update activities array to match days
+      const updatedActivities = updatedDays.map(day => 
+        day.activities.length > 0 ? day.activities[0] : null
+      );
+
       return {
         ...current,
         days: updatedDays,
+        activities: updatedActivities,
         updatedAt: new Date().toISOString(),
       };
     });
@@ -147,12 +253,61 @@ export default function WeekendPlanScreen() {
             onChangeText={(text) => setPlan(prev => ({ ...prev, name: text }))}
             style={styles.input}
           />
+          <View style={styles.longWeekendToggle}>
+            <Paragraph>Long Weekend</Paragraph>
+            <Switch
+              value={plan.isLongWeekend}
+              onValueChange={(value) => setPlan(prev => ({
+                ...prev,
+                isLongWeekend: value,
+              }))}
+            />
+          </View>
+          {plan.isLongWeekend && (
+            <View style={styles.dateContainer}>
+              <Button 
+                mode="outlined" 
+                onPress={() => setShowStartDatePicker(true)}
+                style={styles.dateButton}
+              >
+                Start: {new Date(plan.startDate).toLocaleDateString()}
+              </Button>
+              <Button 
+                mode="outlined" 
+                onPress={() => setShowEndDatePicker(true)}
+                style={styles.dateButton}
+              >
+                End: {new Date(plan.endDate).toLocaleDateString()}
+              </Button>
+            </View>
+          )}
         </Card.Content>
       </Card>
+      
+      {(showStartDatePicker || showEndDatePicker) && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={new Date(showStartDatePicker ? plan.startDate : plan.endDate)}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            if (Platform.OS === 'android') {
+              setShowStartDatePicker(false);
+              setShowEndDatePicker(false);
+            }
+            if (selectedDate) {
+              setPlan(prev => ({
+                ...prev,
+                [showStartDatePicker ? 'startDate' : 'endDate']: selectedDate.toISOString(),
+              }));
+            }
+          }}
+        />
+      )}
 
       {plan.days.map((day, dayIndex) => (
         <View key={`day-${dayIndex}`} style={styles.daySection}>
-          <Title>{dayIndex === 0 ? 'Saturday' : 'Sunday'}</Title>
+          <Title>{new Date(day.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</Title>
           {day.activities.map((activity: Activity, activityIndex: number) => {
             const uniqueKey = `${dayIndex}-${activity.id}-${activityIndex}`;
             return (
