@@ -1,24 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { PaperProvider } from 'react-native-paper';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider>
+        <Stack>
+          <Stack.Screen 
+            name="index" 
+            options={{ 
+              title: 'Weekendly',
+              headerLargeTitle: true,
+            }} 
+          />
+          <Stack.Screen 
+            name="weekend-plan" 
+            options={{ 
+              title: 'Plan Your Weekend',
+              presentation: 'card',
+            }} 
+          />
+          <Stack.Screen 
+            name="(modals)/activity-list" 
+            options={{ 
+              title: 'Choose Activities',
+              presentation: 'modal',
+            }} 
+          />
+        </Stack>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
